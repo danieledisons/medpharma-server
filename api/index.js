@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const admin = require("firebase-admin");
-const cors = require("cors");
+const cors = require("cors"); // Import cors
 const {
   uploadProcessedData,
   initializeFirebaseApp,
@@ -13,11 +13,15 @@ require("dotenv").config();
 const app = express();
 app.use(bodyParser.json());
 
-// Enable CORS with default options (allow all origins)
-// app.use(cors());
+// Enable CORS with specific options
+const corsOptions = {
+  origin: "http://localhost:3000", // allow only from this origin
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
-// OR Enable CORS for specific origin (for example, for your local development environment)
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors(corsOptions)); // Apply the CORS middleware with options
 
 initializeFirebaseApp();
 
