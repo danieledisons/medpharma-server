@@ -1,9 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const admin = require("firebase-admin");
 const {
   uploadProcessedData,
   initializeFirebaseApp,
-
   searchConsultations,
 } = require("../firebase");
 require("dotenv").config();
@@ -30,7 +30,15 @@ const randomString = generateRandomString(12);
 // Route to add a new patient
 app.post("/add-patient", async (req, res) => {
   try {
+    const { name, gender, email, bloodpressure, weight } = req.body;
     const patientData = req.body;
+
+    if ((!name || !gender || !email || !bloodpressure, !weight)) {
+      res.status(404).json({
+        error:
+          "Invalid Request, Make sure to add name, gender, email, bloodpressure, weight",
+      });
+    }
     await uploadProcessedData("patients", randomString.toString(), patientData);
     res.status(200).send({ message: "Patient data added successfully" });
   } catch (error) {
@@ -121,7 +129,7 @@ app.get("/filter-consultations", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
