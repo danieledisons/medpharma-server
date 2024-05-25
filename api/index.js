@@ -76,9 +76,17 @@ app.post("/add-consultation", async (req, res) => {
       consultationNotes,
       medicalCondition,
     } = consultationData;
+
+    // Generate a unique ID for the consultation document
+    const consultationId = admin
+      .firestore()
+      .collection("consultations")
+      .doc().id;
+
+    // Upload consultation data to Firestore with the generated ID
     await uploadProcessedData(
       "consultations",
-      randomString.toString(),
+      consultationId,
       consultationData
     );
     res.status(201).send({ message: "Consultation created successfully" });
