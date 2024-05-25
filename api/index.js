@@ -5,7 +5,7 @@ const {
   initializeFirebaseApp,
 
   searchConsultations,
-} = require("./firebase");
+} = require("../firebase");
 require("dotenv").config();
 
 // Create an Express application
