@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const admin = require("firebase-admin");
-const cors = require("cors"); // Import cors
+const cors = require("cors");
 const {
   uploadProcessedData,
   initializeFirebaseApp,
@@ -14,10 +14,10 @@ const app = express();
 app.use(bodyParser.json());
 
 // Enable CORS with default options (allow all origins)
-app.use(cors());
+// app.use(cors());
 
 // OR Enable CORS for specific origin (for example, for your local development environment)
-// app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: "http://localhost:3000" }));
 
 initializeFirebaseApp();
 
