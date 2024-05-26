@@ -11,23 +11,20 @@ require("dotenv").config();
 
 // Create an Express application
 const app = express();
-// app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use(cors());
+// Initialize Firebase app
+initializeFirebaseApp();
 
-// Enable CORS with specific options
+// Enable CORS for all routes
 const corsOptions = {
-  origin: "http://localhost:3000", // allow only from this origin
+  origin: "*", // Allow all origins for simplicity; modify as needed
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
-  optionsSuccessStatus: 204, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 204,
 };
-
-app.use(cors(corsOptions)); // Apply the CORS middleware with options
-
-initializeFirebaseApp();
+app.use(cors(corsOptions)); // Apply CORS middleware
 
 function generateRandomString(length) {
   const characters =
