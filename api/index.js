@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const admin = require("firebase-admin");
-const cors = require("cors"); // Import cors
+const cors = require("cors");
 const {
   uploadProcessedData,
   initializeFirebaseApp,
@@ -11,24 +11,22 @@ require("dotenv").config();
 
 // Create an Express application
 const app = express();
-app.use(cors());
+
+// Enable CORS for all routes
+const corsOptions = {
+  origin: "*", // Allow any origin for now. Change this to specific origin in production.
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions)); // Apply CORS middleware
+
+// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Initialize Firebase app
 initializeFirebaseApp();
-
-// Enable CORS for all routes
-// const corsOptions = {
-//   origin: "*",
-//   // origin: "http://localhost:3000", // Allow only the frontend's origin
-//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   credentials: true,
-//   optionsSuccessStatus: 204,
-// };
-// app.use(cors(corsOptions)); // Apply CORS middleware
-
-// console.log(corsOptions);
 
 function generateRandomString(length) {
   const characters =
@@ -40,9 +38,6 @@ function generateRandomString(length) {
   }
   return result;
 }
-
-// Generate a random string of 12 characters
-const randomString = generateRandomString(12);
 
 // Route to add a new patient
 app.post("/add-patient", async (req, res) => {
@@ -56,7 +51,11 @@ app.post("/add-patient", async (req, res) => {
           "Invalid Request, Make sure to add name, gender, email, bloodpressure, weight",
       });
     }
-    await uploadProcessedData("patients", randomString.toString(), patientData);
+    await uploadProcessedData(
+      "patients",
+      generateRandomString(12),
+      patientData
+    );
     res.status(200).send({ message: "Patient data added successfully" });
   } catch (error) {
     console.error("Error adding patient data: ", error);
@@ -64,7 +63,7 @@ app.post("/add-patient", async (req, res) => {
   }
 });
 
-// Route to handle login (You can customize this according to your authentication logic)
+// Route to handle login
 app.post("/login", async (req, res) => {
   const { username, password, role } = req.body;
   if (!username || !password) {
@@ -99,7 +98,7 @@ app.post("/add-consultation", async (req, res) => {
     ) {
       return res.status(403).send({
         message:
-          "Fill all forms using this format: patientFirstName, patientLastName, consultationDate,consultationNotes, medicalCondition",
+          "Fill all forms using this format: patientFirstName, patientLastName, consultationDate, consultationNotes, medicalCondition",
       });
     }
 
