@@ -19,12 +19,15 @@ initializeFirebaseApp();
 
 // Enable CORS for all routes
 const corsOptions = {
-  origin: "*", // Allow all origins for simplicity; modify as needed
+  origin: "*",
+  // origin: "http://localhost:3000", // Allow only the frontend's origin
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions)); // Apply CORS middleware
+
+console.log(corsOptions);
 
 function generateRandomString(length) {
   const characters =
