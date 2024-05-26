@@ -11,6 +11,7 @@ require("dotenv").config();
 
 // Create an Express application
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -18,16 +19,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 initializeFirebaseApp();
 
 // Enable CORS for all routes
-const corsOptions = {
-  origin: "*",
-  // origin: "http://localhost:3000", // Allow only the frontend's origin
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionsSuccessStatus: 204,
-};
-app.use(cors(corsOptions)); // Apply CORS middleware
+// const corsOptions = {
+//   origin: "*",
+//   // origin: "http://localhost:3000", // Allow only the frontend's origin
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   credentials: true,
+//   optionsSuccessStatus: 204,
+// };
+// app.use(cors(corsOptions)); // Apply CORS middleware
 
-console.log(corsOptions);
+// console.log(corsOptions);
 
 function generateRandomString(length) {
   const characters =
