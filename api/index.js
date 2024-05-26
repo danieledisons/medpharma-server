@@ -14,12 +14,20 @@ const app = express();
 
 // Enable CORS for all routes
 const corsOptions = {
-  origin: "*", // Allow any origin for now. Change this to specific origin in production.
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  origin: '*', // Allow any origin for now. Change this to specific origin in production.
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions)); // Apply CORS middleware
+
+// Custom CORS middleware
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 // Middleware
 app.use(bodyParser.json());
@@ -29,8 +37,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 initializeFirebaseApp();
 
 function generateRandomString(length) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
@@ -47,15 +54,10 @@ app.post("/add-patient", async (req, res) => {
 
     if (!name || !gender || !email || !bloodpressure || !weight) {
       return res.status(404).json({
-        error:
-          "Invalid Request, Make sure to add name, gender, email, bloodpressure, weight",
+        error: "Invalid Request, Make sure to add name, gender, email, bloodpressure, weight",
       });
     }
-    await uploadProcessedData(
-      "patients",
-      generateRandomString(12),
-      patientData
-    );
+    await uploadProcessedData("patients", generateRandomString(12), patientData);
     res.status(200).send({ message: "Patient data added successfully" });
   } catch (error) {
     console.error("Error adding patient data: ", error);
@@ -67,14 +69,10 @@ app.post("/add-patient", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password, role } = req.body;
   if (!username || !password) {
-    return res
-      .status(403)
-      .send({ message: "Username & Password are required" });
+    return res.status(403).send({ message: "Username & Password are required" });
   }
   if (!role) {
-    return res
-      .status(403)
-      .send({ message: "Role is required, choose between Officer or Patient" });
+    return res.status(403).send({ message: "Role is required, choose between Officer or Patient" });
   }
 });
 
@@ -97,22 +95,14 @@ app.post("/add-consultation", async (req, res) => {
       !medicalCondition
     ) {
       return res.status(403).send({
-        message:
-          "Fill all forms using this format: patientFirstName, patientLastName, consultationDate, consultationNotes, medicalCondition",
+        message: "Fill all forms using this format: patientFirstName, patientLastName, consultationDate, consultationNotes, medicalCondition",
       });
     }
 
     const consultationData = req.body;
-    const consultationId = admin
-      .firestore()
-      .collection("consultations")
-      .doc().id;
+    const consultationId = admin.firestore().collection("consultations").doc().id;
 
-    await uploadProcessedData(
-      "consultations",
-      consultationId,
-      consultationData
-    );
+    await uploadProcessedData("consultations", consultationId, consultationData);
     res.status(201).send({ message: "Consultation created successfully" });
   } catch (error) {
     console.error("Error creating consultation: ", error);
@@ -125,25 +115,4 @@ app.get("/filter-consultations", async (req, res) => {
   try {
     const { patientFirstName, patientLastName, consultationDate } = req.query;
 
-    const filteredConsultations = await searchConsultations({
-      patientFirstName,
-      patientLastName,
-      consultationDate,
-    });
-
-    const results = filteredConsultations.docs.map((doc) => ({
-      id: doc.id,
-      data: doc.data(),
-    }));
-
-    res.status(200).send(results);
-  } catch (error) {
-    console.error("Error filtering consultations: ", error);
-    res.status(500).send({ error: "Error filtering consultations" });
-  }
-});
-
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    const filteredConsultations = await searchCons
