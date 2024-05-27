@@ -282,6 +282,67 @@ app.get("/view-all-consultations", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/searchconsultations", authenticateToken, async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).send({ message: "Query parameter is required" });
+    }
+
+    const consultationsRef = admin.firestore().collection("consultations");
+
+    // Create search promises for each field
+    const searchPromises = [
+      consultationsRef.where("patientFirstName", "==", query).get(),
+      consultationsRef.where("patientLastName", "==", query).get(),
+      consultationsRef.where("medicalCondition", "==", query).get(),
+      consultationsRef.where("healthcareProvider", "==", query).get(),
+      consultationsRef.where("consultationType", "==", query).get(),
+      consultationsRef
+        .where("consultationNotes", "array-contains", query)
+        .get(),
+      consultationsRef.where("consultationDate", "==", query).get(),
+    ];
+
+    // Wait for all search promises to resolve
+    const [
+      firstNameSnapshot,
+      lastNameSnapshot,
+      medicalConditionSnapshot,
+      healthcareProviderSnapshot,
+      consultationTypeSnapshot,
+      consultationNotesSnapshot,
+      consultationDateSnapshot,
+    ] = await Promise.all(searchPromises);
+
+    // Combine all results, removing duplicates
+    const consultations = [
+      ...firstNameSnapshot.docs,
+      ...lastNameSnapshot.docs,
+      ...medicalConditionSnapshot.docs,
+      ...healthcareProviderSnapshot.docs,
+      ...consultationTypeSnapshot.docs,
+      ...consultationNotesSnapshot.docs,
+      ...consultationDateSnapshot.docs,
+    ].reduce((acc, doc) => {
+      if (!acc.some((d) => d.id === doc.id)) {
+        acc.push({ id: doc.id, data: doc.data() });
+      }
+      return acc;
+    }, []);
+
+    if (consultations.length === 0) {
+      return res.status(404).send({ message: "No consultations found" });
+    }
+
+    res.status(200).send(consultations);
+  } catch (error) {
+    console.error("Error filtering consultations: ", error);
+    res.status(500).send({ error: "Error filtering consultations" });
+  }
+});
+
 // Route to get patient details by first name and last name
 app.get("/get-patient-details", authenticateToken, async (req, res) => {
   try {
@@ -308,6 +369,37 @@ app.get("/get-patient-details", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching patient details: ", error);
     res.status(500).send({ error: "Error fetching patient details" });
+  }
+});
+
+app.get("/search-consultations", authenticateToken, async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).send({ message: "Query parameter is required" });
+    }
+
+    const consultationsRef = admin.firestore().collection("consultations");
+    const searchPromises = [
+      consultationsRef.where("patientFirstName", "==", query).get(),
+      consultationsRef.where("patientLastName", "==", query).get(),
+      consultationsRef.where("medicalCondition", "==", query).get(),
+    ];
+
+    const [firstNameSnapshot, lastNameSnapshot, medicalConditionSnapshot] =
+      await Promise.all(searchPromises);
+
+    const consultations = [
+      ...firstNameSnapshot.docs,
+      ...lastNameSnapshot.docs,
+      ...medicalConditionSnapshot.docs,
+    ].map((doc) => ({ id: doc.id, data: doc.data() }));
+
+    res.status(200).send(consultations);
+  } catch (error) {
+    console.error("Error searching consultations: ", error);
+    res.status(500).send({ error: "Error searching consultations" });
   }
 });
 
