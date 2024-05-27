@@ -98,6 +98,65 @@ This server manages consultations in a health facility, providing endpoints to a
       ... // Additional consultation records
     ]
     ```
+    # Consultation Search and Patient Details API
+
+This repository contains code for two API endpoints: consultation search and patient details retrieval. These endpoints are designed to be integrated into a larger system for managing consultations and patient information in a healthcare facility.
+
+## Consultation Search
+
+- **Endpoint**: `GET /searchconsultations`
+- **Description**: Searches for consultations based on various criteria such as patient name, medical condition, healthcare provider, consultation type, consultation notes, and consultation date.
+- **Query Parameters**:
+  - `query`: The search query to filter consultations.
+- **Response**:
+  - Status: 
+    - 200 OK if consultations are found
+    - 404 Not Found if no consultations match the query
+    - 500 Internal Server Error if there's an error processing the request
+  - Content:
+    - Array of consultation records matching the search query.
+    ```json
+    [
+      {
+        "id": "12345",
+        "data": {
+          "patientFirstName": "John",
+          "patientLastName": "Doe",
+          "consultationDate": "2024-05-25",
+          "consultationNotes": "Patient complains of headaches.",
+          "medicalCondition": "Migraine"
+        }
+      },
+      ... // Additional consultation records
+    ]
+    ```
+
+## Patient Details Retrieval
+
+- **Endpoint**: `GET /get-patient-details`
+- **Description**: Retrieves patient details based on first name and last name.
+- **Query Parameters**:
+  - `firstName`: First name of the patient.
+  - `lastName`: Last name of the patient.
+- **Response**:
+  - Status:
+    - 200 OK if patient details are found
+    - 404 Not Found if no patient matches the provided name
+    - 400 Bad Request if first name or last name is missing in the query parameters
+    - 500 Internal Server Error if there's an error processing the request
+  - Content:
+    - Patient details object containing information such as patient first name, last name, age, gender, contact details, etc.
+    ```json
+    {
+      "patientFirstName": "John",
+      "patientLastName": "Doe",
+      "age": 35,
+      "gender": "Male",
+      "email": "john.doe@example.com",
+      "phone": "1234567890",
+      ... // Additional patient details
+    }
+    ```
 
 ## Installation and Setup
 
